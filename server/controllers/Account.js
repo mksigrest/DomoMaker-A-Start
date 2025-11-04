@@ -1,5 +1,5 @@
 const models = require('../models');
-const Account = models.Account;
+const Account = require('../models/Account');
 
 const loginPage = (req, res) => {
     return res.render('login');
@@ -29,7 +29,7 @@ const signup = async (req, res) => {
     const pass = `${req.body.pass}`;
     const pass2 = `${req.body.pass2}`;
 
-    if (!username || !pass | !pass2) {
+    if (!username || !pass || !pass2) {
         return res.status(400).json({ error: 'All fields are required!' });
     }
     if (pass !== pass2) {
