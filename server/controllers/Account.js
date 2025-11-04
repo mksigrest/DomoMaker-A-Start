@@ -24,6 +24,14 @@ const signup = async (req, res) => {
     if (pass !== pass2) {
         return res.status(400).json({ error: 'Passwords do not match!' });
     }
+    try {
+        const hash = await Account.generateHash(pass);
+        const newAccount = new Account({ username, password: hash });
+        await newAccount.save();
+        return res.json({ redirect: '/maker' });
+    } catch (err) {
+
+    }
 };
 
 module.exports = {
