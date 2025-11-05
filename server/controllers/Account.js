@@ -7,7 +7,8 @@ const signupPage = (req, res) => {
     return res.render('signup');
 };
 const logout = (req, res) => {
-    return res.redirect('/');
+    req.session.destroy();
+    res.redirect('/');
 };
 const login = (req, res) => {
     const username = `${req.body.username}`;
@@ -20,6 +21,8 @@ const login = (req, res) => {
         if (err || !account) {
             return res.status(401).json({ error: 'Wrong username or password!' });
         }
+        req.session.account = Account.toAPI(account);
+
         return res.json({ redirect: '/maker' });
     });
 };
