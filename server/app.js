@@ -1,4 +1,5 @@
 require('dotenv').config();
+console.log('Loaded Redis URL:', process.env.REDISCLOUD_URL);
 const path = require('path');
 const express = require('express');
 const compression = require('compression');
