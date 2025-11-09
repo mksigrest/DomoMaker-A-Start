@@ -1,3 +1,4 @@
+require('dotenv').config();
 const path = require('path');
 const express = require('express');
 const compression = require('compression');
@@ -21,29 +22,37 @@ mongoose.connect(dbURI).catch((err) => {
     }
 });
 
-const app = express();
+const redisClient = redis.createClient({
+    url: process.env.REDISCLOUD_URL,;
+});
 
-app.use(helmet());
-app.use('/assets', express.static(path.resolve(`${__dirname}/../hosted`)));
-app.use(favicon(`${__dirname}/../hosted/img/favicon.png`));
-app.use(compression());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+redisClient.on('error', err => console.log('Redis Client Error', err));
 
-app.use(session({
-    key: 'sessionid',
-    secret: 'Domo Arigato',
-    resave: false,
-    saveUninitialized: false,
-}));
+redisClient.connect().then(() => {
+    const app = express();
 
-app.engine('handlebars', expressHandlebars.engine({ defaultLayout: '' }));
-app.set('view engine', 'handlebars');
-app.set('views', `${__dirname}/../views`);
+    app.use(helmet());
+    app.use('/assets', express.static(path.resolve(`${__dirname}/../hosted`)));
+    app.use(favicon(`${__dirname}/../hosted/img/favicon.png`));
+    app.use(compression());
+    app.use(express.urlencoded({ extended: true }));
+    app.use(express.json());
 
-router(app);
+    app.use(session({
+        key: 'sessionid',
+        secret: 'Domo Arigato',
+        resave: false,
+        saveUninitialized: false,
+    }));
 
-app.listen(port, (err) => {
-    if (err) { throw err; }
-    console.log(`Listening on port ${port}`);
+    app.engine('handlebars', expressHandlebars.engine({ defaultLayout: '' }));
+    app.set('view engine', 'handlebars');
+    app.set('views', `${__dirname}/../views`);
+
+    router(app);
+
+    app.listen(port, (err) => {
+        if (err) { throw err; }
+        console.log(`Listening on port ${port}`);
+    });
 });
